@@ -1,0 +1,3 @@
+tuc: a django based web crawler. Currently it enables:
+1. grab info from Lianjia.com.
+2. show variation tendency of sold flat count and price.
