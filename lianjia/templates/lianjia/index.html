@@ -1,0 +1,97 @@
+{% extends "frame.html"%}
+
+{% block title %}Lianjia{% endblock %}
+
+{% block custom_link %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/0.2.0/Chart.min.js" type="text/javascript"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block body_container %}
+<div class="container">
+    <script language="JavaScript">
+        $(document.body).on("click", "a[data-toggle]", function(event) {
+            anchor = this.getAttribute("href");
+            draw(anchor);
+        });
+
+        $(document).ready(function(){
+            anchor = '#last-30-days'
+            draw(anchor);
+        });
+
+        function draw(anchor) {
+            canvas = 'last-30-days-canvas';
+            url_ = "{% url 'fetch_ajax' 'last-30-days' %}"
+
+            switch (anchor) {
+                case '#last-30-days':
+                    canvas = 'last-30-days-canvas'
+                    url_ = "{% url 'fetch_ajax' 'last-30-days' %}"
+                    break;
+                case '#last-90-days':
+                    canvas = 'last-90-days-canvas'
+                    url_ = "{% url 'fetch_ajax' 'last-90-days' %}"
+                    break;
+                case '#last-180-days':
+                    canvas = 'last-180-days-canvas'
+                    url_ = "{% url 'fetch_ajax' 'last-180-days' %}"
+                    break;
+                case '#last-360-days':
+                    canvas = 'last-360-days-canvas'
+                    url_ = "{% url 'fetch_ajax' 'last-360-days' %}"
+                    break;
+            }
+
+            label_list = [];
+            data_list = [];
+
+            $.ajax({
+               url: url_,
+               datatype: "json",
+               async: false,
+               cache: true,
+               success : function(json_data){
+                  data_list = json_data['sold_flat_count']
+                  label_list = json_data['sold_flat_date']
+               }
+            });
+
+            var data = {
+                labels: label_list,
+                datasets: [
+                    {
+                        label: "每周成交量/套",
+                        fillColor: "rgba(220,220,220,0.2)",
+                        strokeColor: "rgba(220,220,220,1)",
+                        pointColor: "rgba(220,220,220,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(220,220,290,1)",
+                        data : data_list,
+                    }
+                ]
+            };
+
+            $(anchor).html('<canvas id=' + canvas +' width="1150" height="500"></canvas>');
+            var ctx = document.getElementById(canvas).getContext("2d");
+            var myLineChart = new Chart(ctx).Line(data);
+            $('a[href="' + anchor + '"]').tab('show');
+        };
+    </script>
+
+    <ul id="myTab" class="nav nav-tabs">
+        <li><a href="#last-30-days" data-toggle="tab">30天</a></li>
+        <li><a href="#last-90-days" data-toggle="tab">90天</a></li>
+        <li><a href="#last-180-days" data-toggle="tab">180天</a></li>
+        <li><a href="#last-360-days" data-toggle="tab">360天</a></li>
+    </ul>
+
+    <div id="tabContent" class="tab-content">
+        <div class="tab-pane fade" id="last-30-days"></div>
+        <div class="tab-pane fade" id="last-90-days"></div>
+        <div class="tab-pane fade" id="last-180-days"></div>
+        <div class="tab-pane fade" id="last-360-days"></div>
+    </div>
+</div>
+{% endblock %}
